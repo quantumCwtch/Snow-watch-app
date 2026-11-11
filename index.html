@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snow Watch: Trafalgar Square</title>
+  <meta name="description" content="Has it snowed at Trafalgar Square? A daily verdict from Met Office observations at London, St James's Park, presented as an early-90s game.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%2329366f'/><rect x='3' y='1' width='2' height='6' fill='%23f4f4f4'/><rect x='1' y='3' width='6' height='2' fill='%23f4f4f4'/></svg>">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <p class="logo" aria-hidden="true">SNOW WATCH</p>
+    <nav aria-label="Main">
+      <a href="./" aria-current="page">Title screen</a>
+      <a href="scores.html">High scores</a>
+      <a href="archive.html">Level select</a>
+      <a href="how.html">How it works</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Snow Watch: Trafalgar Square</h1>
+    <p id="preview-banner" class="preview-banner" hidden>PREVIEW MODE: sample data, not real weather. Nothing is saved.</p>
+    <div class="screen-wrap">
+      <canvas id="screen" width="320" height="200" role="img" aria-label="Animated pixel-art scene of Trafalgar Square"></canvas>
+      <button id="start" class="start-btn" type="button" hidden>PRESS START</button>
+    </div>
+    <div class="controls">
+      <button id="sound" class="pixel-btn" type="button" aria-pressed="false">SOUND: OFF</button>
+    </div>
+
+    <section aria-labelledby="verdict-h" class="panel">
+      <h2 id="verdict-h">Has it snowed?</h2>
+      <dl class="stats">
+        <dt>Yesterday</dt><dd id="v-yesterday">Loading…</dd>
+        <dt>Today so far</dt><dd id="v-today">Loading…</dd>
+      </dl>
+      <p id="v-detail" class="small"></p>
+    </section>
+
+    <section aria-labelledby="hud-h" class="panel">
+      <h2 id="hud-h">Latest observation</h2>
+      <dl class="stats" id="hud">
+        <dt>Temperature</dt><dd id="h-temp">--</dd>
+        <dt>Wind</dt><dd id="h-wind">--</dd>
+        <dt>Conditions</dt><dd id="h-cond">--</dd>
+        <dt>Station</dt><dd id="h-station">--</dd>
+        <dt>Observed</dt><dd id="h-time">--</dd>
+        <dt>Data status</dt><dd id="h-status">--</dd>
+      </dl>
+    </section>
+
+    <section aria-labelledby="scene-h" class="panel">
+      <h2 id="scene-h">What's happening in the square</h2>
+      <p id="scene-summary"></p>
+      <ul id="scene-list" aria-live="polite"></ul>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Observations: Met Office (London, St James's Park, WMO 03770). Contains public sector information and data licensed under the Open Government Licence and CC BY-SA 4.0. <a href="how.html#licences">Licences and attribution</a>.</p>
+  </footer>
+  <script type="module" src="/src/pages/home.ts"></script>
+</body>
+</html>

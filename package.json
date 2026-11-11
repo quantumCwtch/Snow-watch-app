@@ -1,0 +1,26 @@
+{
+  "name": "snow-watch-trafalgar-square",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Snow Watch: Trafalgar Square - an early-90s-style daily snow tracker driven by Met Office observations from London, St James's Park.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/copy-data.mjs",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "pipeline": "tsx pipeline/run.ts",
+    "confirm-station": "tsx pipeline/confirm-station.ts",
+    "capture-fixtures": "tsx pipeline/capture-fixtures.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8"
+  }
+}

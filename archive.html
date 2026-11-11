@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Level Select: Snow Watch</title>
+  <meta name="description" content="Replay any past day at Trafalgar Square and see its snow verdict and raw data.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%2329366f'/><rect x='3' y='1' width='2' height='6' fill='%23f4f4f4'/><rect x='1' y='3' width='6' height='2' fill='%23f4f4f4'/></svg>">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <p class="logo" aria-hidden="true">SNOW WATCH</p>
+    <nav aria-label="Main">
+      <a href="./">Title screen</a>
+      <a href="scores.html">High scores</a>
+      <a href="archive.html" aria-current="page">Level select</a>
+      <a href="how.html">How it works</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Level select</h1>
+    <p>Pick a finalised day to replay its scene and check the verdict and the observations behind it.</p>
+    <div class="panel">
+      <label for="date">Choose a date</label>
+      <input type="date" id="date">
+      <p id="date-msg" class="small" role="status"></p>
+    </div>
+    <div class="screen-wrap">
+      <canvas id="screen" width="320" height="200" role="img" aria-label="Replay of the chosen day"></canvas>
+      <button id="start" class="start-btn" type="button" hidden>PRESS START</button>
+    </div>
+    <div class="controls">
+      <button id="sound" class="pixel-btn" type="button" aria-pressed="false">SOUND: OFF</button>
+    </div>
+    <section class="panel" aria-labelledby="day-h">
+      <h2 id="day-h">Day report</h2>
+      <div id="day-report" aria-live="polite"><p>Choose a day.</p></div>
+    </section>
+    <section class="panel" aria-labelledby="levels-h">
+      <h2 id="levels-h">All levels</h2>
+      <ul id="levels" class="level-grid"></ul>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Observations: Met Office (London, St James's Park, WMO 03770). Contains public sector information and data licensed under the Open Government Licence and CC BY-SA 4.0. <a href="how.html#licences">Licences and attribution</a>.</p>
+  </footer>
+  <script type="module" src="/src/pages/archive.ts"></script>
+</body>
+</html>

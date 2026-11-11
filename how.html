@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How It Works: Snow Watch</title>
+  <meta name="description" content="How Snow Watch decides whether it snowed at Trafalgar Square: data sources, the snow rule, its limits, and licences.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%2329366f'/><rect x='3' y='1' width='2' height='6' fill='%23f4f4f4'/><rect x='1' y='3' width='6' height='2' fill='%23f4f4f4'/></svg>">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <p class="logo" aria-hidden="true">SNOW WATCH</p>
+    <nav aria-label="Main">
+      <a href="./">Title screen</a>
+      <a href="scores.html">High scores</a>
+      <a href="archive.html">Level select</a>
+      <a href="how.html" aria-current="page">How it works</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>How it works</h1>
+    <div class="prose">
+    <section class="panel" aria-labelledby="where-h">
+      <h2 id="where-h">Where the weather comes from</h2>
+      <p>Trafalgar Square has no weather station of its own. The closest official Met Office station is <strong>London, St James's Park</strong> (WMO station 03770), about 600 metres away. Every verdict and every scene on this site is built from observations at that one station. The app never uses forecasts, never randomises the weather, and never quietly switches to another station.</p>
+      <ul>
+        <li><strong>Primary source: Met Office Weather DataHub, Land Observations API.</strong> Hourly observations for the last 48 hours, including the Met Office <em>weather type code</em>, temperature, visibility, wind and pressure. Each run first asks DataHub for the station nearest Trafalgar Square and refuses to publish anything unless it is St James's Park.</li>
+        <li><strong>Secondary source: Met Office UK Land Surface Observations on the AWS Open Data Registry</strong> (bucket <code>met-office-land-observations-data</code>). One-minute observations used to back-fill missed runs, add precipitation totals and cross-check DataHub temperatures. The station name and coordinates in every file are checked before use.</li>
+      </ul>
+      <p>A GitHub Actions job fetches the data every hour, applies the rules below, and commits the results as JSON files in the <code>data/</code> folder. Every day's file includes the raw observations it was based on, so any verdict can be checked.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="rule-h">
+      <h2 id="rule-h">The snow rule</h2>
+      <p>Each day is a UK calendar day (midnight to midnight, UK local time), so days are 23 or 25 hours long when the clocks change.</p>
+      <ol>
+        <li><strong>SNOW</strong> if any hourly observation that day has a snow weather code (codes 22 to 27: light or heavy snow, and snow showers). A snow code reported exactly at the following midnight also counts, because it was snowing as the day ended.</li>
+        <li><strong>UNCONFIRMED</strong> if there is no snow code but codes are missing for hours when snow could not be ruled out (the temperature was 6&nbsp;°C or lower, or unknown), or fewer than half the hours arrived. If precipitation fell with the temperature at or below 2&nbsp;°C, the page shows <em>POSSIBLE SNOW, AWAITING CONFIRMATION</em>. Without a code, snow is never declared.</li>
+        <li><strong>SLEET</strong> (a near miss) if the only wintry codes seen are sleet codes (16 to 18).</li>
+        <li><strong>NO SNOW</strong> otherwise. Hail (codes 19 to 21) is not snow, but it gets its own message.</li>
+      </ol>
+      <p>Codes follow the Met Office DataHub <a href="https://datahub.metoffice.gov.uk/definition-of-codes">Definition of Codes</a> table. Every threshold is listed in <code>CONFIG.md</code> in the repository.</p>
+      <p>The yesterday verdict is final. The <em>today so far</em> status is provisional and updates every hour.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="scene-h">
+      <h2 id="scene-h">How the scene is chosen</h2>
+      <p>The scene shows the <em>most significant</em> weather observed, in this order: snow, sleet or hail, thunder, heavy rain, light rain, fog or mist, strong wind, overcast, partly cloudy, then sunny (with hot and cold-and-bright variants). After sunset in London, the night version is shown. When no weather code is available, rain is worked out from measured precipitation, and the sky is shown as <em>not reported</em> rather than guessed.</p>
+      <p>Which millennial does what, where they stand and what passes by are chosen by a random number generator seeded with the date, so a given day always looks the same, but no two days look alike.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="limits-h">
+      <h2 id="limits-h">Limits</h2>
+      <ul>
+        <li>St James's Park is 600 metres from Trafalgar Square. Snow can be patchy, so the two places will not always match.</li>
+        <li>Observations are hourly. A brief flurry between two observation times can be missed.</li>
+        <li>Weather codes come from automatic sensors and can occasionally be wrong. The data is not the Met Office's quality-controlled climate record (that is published later, through MIDAS Open).</li>
+        <li>The AWS feed for St James's Park carries no weather code, wind or visibility. When DataHub is unavailable, days can only be marked UNCONFIRMED or NO SNOW, never SNOW.</li>
+        <li>If data is missing or late, the page says so (SIGNAL LOST) instead of guessing.</li>
+      </ul>
+    </section>
+
+    <section class="panel" aria-labelledby="licences-h" id="licences">
+      <h2 id="licences-h">Licences and attribution</h2>
+      <ul>
+        <li>Met Office Weather DataHub Land Observations: © Crown copyright, Met Office. Used under the <a href="https://datahub.metoffice.gov.uk/">Weather DataHub</a> terms and conditions.</li>
+        <li>Met Office UK Land Surface Observations (AWS Open Data Registry): British Crown copyright, Met Office, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike (CC BY-SA)</a>. Source: <a href="https://registry.opendata.aws/met-office-uk-land-observations/">registry.opendata.aws/met-office-uk-land-observations</a>. The derived data files in this site's <code>data/</code> folder are shared under the same licence.</li>
+        <li>Artwork, characters, the pixel font and the chiptune fanfare are original to this project. They do not imitate any existing game, character, publisher or soundtrack.</li>
+      </ul>
+    </section>
+
+    <section class="panel" aria-labelledby="preview-h">
+      <h2 id="preview-h">Preview every screen</h2>
+      <p>These links show each weather scene and special screen with <strong>sample data</strong>, clearly marked PREVIEW. They never read or write the real data files. Add <code>&amp;night=1</code> to see the night version.</p>
+      <ul class="level-grid">
+          <li><a href="./?preview=snow">snow</a></li>
+          <li><a href="./?preview=sleet">sleet</a></li>
+          <li><a href="./?preview=hail">hail</a></li>
+          <li><a href="./?preview=thunder">thunder</a></li>
+          <li><a href="./?preview=heavy-rain">heavy-rain</a></li>
+          <li><a href="./?preview=light-rain">light-rain</a></li>
+          <li><a href="./?preview=fog">fog</a></li>
+          <li><a href="./?preview=wind">wind</a></li>
+          <li><a href="./?preview=overcast">overcast</a></li>
+          <li><a href="./?preview=partly-cloudy">partly-cloudy</a></li>
+          <li><a href="./?preview=sunny">sunny</a></li>
+          <li><a href="./?preview=sunny-hot">sunny-hot</a></li>
+          <li><a href="./?preview=cold-bright">cold-bright</a></li>
+          <li><a href="./?preview=unknown">unknown</a></li>
+          <li><a href="./?preview=unconfirmed">unconfirmed</a></li>
+          <li><a href="./?preview=possible-snow">possible-snow</a></li>
+          <li><a href="./?preview=signal-lost">signal-lost</a></li>
+          <li><a href="./?preview=station-mismatch">station-mismatch</a></li>
+      </ul>
+    </section>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <p>Observations: Met Office (London, St James's Park, WMO 03770). Contains public sector information and data licensed under the Open Government Licence and CC BY-SA 4.0. <a href="how.html#licences">Licences and attribution</a>.</p>
+  </footer>
+</body>
+</html>

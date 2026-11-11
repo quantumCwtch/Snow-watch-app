@@ -1,0 +1,104 @@
+{
+  "$comment": "Every threshold and code mapping used by Snow Watch. See CONFIG.md for the source of each value.",
+  "site": {
+    "name": "Trafalgar Square",
+    "latitude": 51.508,
+    "longitude": -0.1281,
+    "timeZone": "Europe/London"
+  },
+  "station": {
+    "name": "London, St James's Park",
+    "wmoId": "03770",
+    "distanceFromSiteMetres": 600,
+    "datahub": {
+      "baseUrl": "https://data.hub.api.metoffice.gov.uk/observation-land/1",
+      "nearestQueryLatitude": 51.51,
+      "nearestQueryLongitude": -0.13,
+      "expectedAreaPattern": "st\\.?\\s*james",
+      "confirmedGeohash": null
+    },
+    "aws": {
+      "bucket": "met-office-land-observations-data",
+      "region": "eu-west-2",
+      "baseUrl": "https://met-office-land-observations-data.s3.eu-west-2.amazonaws.com",
+      "fileKeyPrefix": "london_st_jamess_park_automatic_weather_station",
+      "expectedName": "London St Jamess Park Automatic Weather Station",
+      "expectedLatitude": 51.5,
+      "expectedLongitude": -0.13,
+      "maxCoordinateDifferenceDegrees": 0.02
+    }
+  },
+  "weatherCodes": {
+    "$source": "Met Office Weather DataHub 'Definition of Codes', https://datahub.metoffice.gov.uk/definition-of-codes (checked 2026-11-11)",
+    "maxKnownCode": 30,
+    "snow": [22, 23, 24, 25, 26, 27],
+    "sleet": [16, 17, 18],
+    "hail": [19, 20, 21],
+    "thunder": [28, 29, 30],
+    "heavyRain": [13, 14, 15],
+    "lightRain": [-1, 9, 10, 11, 12],
+    "fog": [5, 6],
+    "overcast": [7, 8],
+    "partlyCloudy": [2, 3],
+    "clear": [0, 1],
+    "labels": {
+      "-1": "Trace rain",
+      "0": "Clear night",
+      "1": "Sunny day",
+      "2": "Partly cloudy (night)",
+      "3": "Partly cloudy (day)",
+      "4": "Not used",
+      "5": "Mist",
+      "6": "Fog",
+      "7": "Cloudy",
+      "8": "Overcast",
+      "9": "Light rain shower (night)",
+      "10": "Light rain shower (day)",
+      "11": "Drizzle",
+      "12": "Light rain",
+      "13": "Heavy rain shower (night)",
+      "14": "Heavy rain shower (day)",
+      "15": "Heavy rain",
+      "16": "Sleet shower (night)",
+      "17": "Sleet shower (day)",
+      "18": "Sleet",
+      "19": "Hail shower (night)",
+      "20": "Hail shower (day)",
+      "21": "Hail",
+      "22": "Light snow shower (night)",
+      "23": "Light snow shower (day)",
+      "24": "Light snow",
+      "25": "Heavy snow shower (night)",
+      "26": "Heavy snow shower (day)",
+      "27": "Heavy snow",
+      "28": "Thunder shower (night)",
+      "29": "Thunder shower (day)",
+      "30": "Thunder"
+    }
+  },
+  "snowRule": {
+    "possibleSnowMaxTempC": 2.0,
+    "possibleSnowMinPrecipMm": 0.2,
+    "missingCodeRelevantMaxTempC": 6.0,
+    "minCompletenessForVerdict": 0.5
+  },
+  "classifier": {
+    "fogVisibilityMetres": 1000,
+    "mistVisibilityMetres": 5000,
+    "strongWindGustMs": 17.0,
+    "heavyRainHourlyMm": 4.0,
+    "lightRainHourlyMm": 0.2,
+    "hotMaxTempC": 25.0,
+    "coldBrightMaxTempC": 5.0
+  },
+  "crossCheck": {
+    "temperatureToleranceC": 1.5
+  },
+  "pipeline": {
+    "awsRetentionDays": 7,
+    "maxBackfillDays": 7,
+    "retryAttempts": 4,
+    "retryBaseDelayMs": 2000,
+    "requestTimeoutMs": 20000
+  }
+}

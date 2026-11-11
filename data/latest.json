@@ -1,0 +1,82 @@
+{
+ "schema": 1,
+ "generatedAt": "2026-11-11T23:10:30.794Z",
+ "status": "PARTIAL",
+ "statusMessage": "Running on AWS observations only: no weather codes, so snow cannot be confirmed. (DATAHUB_API_KEY is not set.)",
+ "station": {
+  "name": "London, St James's Park",
+  "wmoId": "03770",
+  "datahubGeohash": null,
+  "datahubArea": null,
+  "awsName": "London St Jamess Park Automatic Weather Station",
+  "verified": {
+   "datahub": false,
+   "aws": true
+  }
+ },
+ "latestObservation": {
+  "time": "2026-11-11T21:00:00Z",
+  "weatherCode": null,
+  "temperatureC": 9.37,
+  "minTemperatureC": 9.13,
+  "maxTemperatureC": 9.37,
+  "visibilityM": null,
+  "windSpeedMs": null,
+  "windGustMs": null,
+  "windDirection": null,
+  "humidityPct": 85.7,
+  "mslpHpa": null,
+  "precipMm": 0,
+  "sources": [
+   "aws"
+  ]
+ },
+ "today": {
+  "date": "2026-11-11",
+  "verdict": "NO_SNOW",
+  "rule": {
+   "hailSeen": false,
+   "sleetSeen": false,
+   "possibleSnowHours": [],
+   "relevantMissingCodeHours": [],
+   "unexpectedCodes": [],
+   "verdict": "NO_SNOW",
+   "triggers": [],
+   "possibleSnow": false,
+   "reasons": [
+    "No snow codes in any reported hour."
+   ]
+  },
+  "scene": {
+   "category": "light-rain",
+   "variant": "normal",
+   "label": "Light rain or drizzle",
+   "basis": "Up to 1.0 mm fell in one hour."
+  },
+  "minTemperatureC": 8.1,
+  "maxTemperatureC": 10.5,
+  "totalPrecipMm": 5.2,
+  "completeness": {
+   "hoursExpected": 24,
+   "hoursReceived": 22,
+   "hoursWithCode": 0
+  },
+  "sources": [
+   "aws"
+  ]
+ },
+ "yesterday": {
+  "date": "2026-11-10",
+  "verdict": "UNCONFIRMED",
+  "possibleSnow": false,
+  "hailSeen": false,
+  "scene": {
+   "category": "light-rain",
+   "variant": "normal",
+   "label": "Light rain or drizzle",
+   "basis": "Up to 1.0 mm fell in one hour."
+  },
+  "dayFile": "data/days/2026-11-10.json"
+ },
+ "snowDaysRecorded": 0
+}

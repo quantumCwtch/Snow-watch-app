@@ -1,0 +1,99 @@
+{
+ "schema": 1,
+ "generatedAt": "2026-11-11T23:10:30.794Z",
+ "launchDate": "2026-11-04",
+ "counts": {
+  "SNOW": 0,
+  "SLEET": 0,
+  "UNCONFIRMED": 4,
+  "NO_SNOW": 3,
+  "NO_DATA": 0
+ },
+ "snowDays": [],
+ "sleetDays": [],
+ "longestRunWithoutSnow": {
+  "days": 7,
+  "from": "2026-11-04",
+  "to": "2026-11-10"
+ },
+ "currentRunWithoutSnow": 7,
+ "days": [
+  {
+   "date": "2026-11-04",
+   "verdict": "NO_SNOW",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "light-rain",
+   "variant": "normal",
+   "minTemperatureC": 8.8,
+   "maxTemperatureC": 10.7,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-05",
+   "verdict": "NO_SNOW",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "unknown",
+   "variant": "normal",
+   "minTemperatureC": 9,
+   "maxTemperatureC": 10.7,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-06",
+   "verdict": "NO_SNOW",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "light-rain",
+   "variant": "normal",
+   "minTemperatureC": 6.1,
+   "maxTemperatureC": 11.7,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-07",
+   "verdict": "UNCONFIRMED",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "unknown",
+   "variant": "normal",
+   "minTemperatureC": 4.6,
+   "maxTemperatureC": 11.2,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-08",
+   "verdict": "UNCONFIRMED",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "unknown",
+   "variant": "normal",
+   "minTemperatureC": 4.3,
+   "maxTemperatureC": 10.6,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-09",
+   "verdict": "UNCONFIRMED",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "unknown",
+   "variant": "normal",
+   "minTemperatureC": 4.1,
+   "maxTemperatureC": 10.6,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-10",
+   "verdict": "UNCONFIRMED",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "light-rain",
+   "variant": "normal",
+   "minTemperatureC": 5.8,
+   "maxTemperatureC": 10.9,
+   "completeness": 1
+  }
+ ]
+}

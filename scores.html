@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>High Scores: Snow Watch</title>
+  <meta name="description" content="Snow days, sleet near-misses and the longest run without snow at Trafalgar Square.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%2329366f'/><rect x='3' y='1' width='2' height='6' fill='%23f4f4f4'/><rect x='1' y='3' width='6' height='2' fill='%23f4f4f4'/></svg>">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <p class="logo" aria-hidden="true">SNOW WATCH</p>
+    <nav aria-label="Main">
+      <a href="./">Title screen</a>
+      <a href="scores.html" aria-current="page">High scores</a>
+      <a href="archive.html">Level select</a>
+      <a href="how.html">How it works</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>High scores</h1>
+    <section class="panel" aria-labelledby="totals-h">
+      <h2 id="totals-h">Totals</h2>
+      <dl class="stats" id="totals"><dt>Loading</dt><dd>…</dd></dl>
+    </section>
+    <section class="panel" aria-labelledby="snow-h">
+      <h2 id="snow-h">Snow days</h2>
+      <div id="snow-list"><p>Loading…</p></div>
+    </section>
+    <section class="panel" aria-labelledby="sleet-h">
+      <h2 id="sleet-h">Sleet near-misses</h2>
+      <div id="sleet-list"><p>Loading…</p></div>
+    </section>
+    <section class="panel" aria-labelledby="possible-h">
+      <h2 id="possible-h">Unconfirmed days with possible snow</h2>
+      <div id="possible-list"><p>Loading…</p></div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Observations: Met Office (London, St James's Park, WMO 03770). Contains public sector information and data licensed under the Open Government Licence and CC BY-SA 4.0. <a href="how.html#licences">Licences and attribution</a>.</p>
+  </footer>
+  <script type="module" src="/src/pages/scores.ts"></script>
+</body>
+</html>
