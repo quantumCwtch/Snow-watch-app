@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generatedAt": "2026-11-12T03:50:10.609Z",
+ "generatedAt": "2026-11-12T06:59:05.043Z",
  "status": "PARTIAL",
  "statusMessage": "Running on AWS observations only: no weather codes, so snow cannot be confirmed. (DATAHUB_API_KEY is not set.)",
  "station": {
@@ -15,16 +15,16 @@
   }
  },
  "latestObservation": {
-  "time": "2026-11-12T01:00:00Z",
+  "time": "2026-11-12T04:00:00Z",
   "weatherCode": null,
-  "temperatureC": 7,
-  "minTemperatureC": 6.68,
-  "maxTemperatureC": 7.15,
+  "temperatureC": 6.25,
+  "minTemperatureC": 5.68,
+  "maxTemperatureC": 6.26,
   "visibilityM": null,
   "windSpeedMs": null,
   "windGustMs": null,
   "windDirection": null,
-  "humidityPct": 89.4,
+  "humidityPct": 85.2,
   "mslpHpa": null,
   "precipMm": 0,
   "sources": [
@@ -53,12 +53,12 @@
    "label": "Sky not reported",
    "basis": "No weather code reported, and no measurable rain."
   },
-  "minTemperatureC": 6.7,
+  "minTemperatureC": 5.7,
   "maxTemperatureC": 7.7,
   "totalPrecipMm": 0,
   "completeness": {
-   "hoursExpected": 4,
-   "hoursReceived": 2,
+   "hoursExpected": 7,
+   "hoursReceived": 5,
    "hoursWithCode": 0
   },
   "sources": [
