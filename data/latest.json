@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generatedAt": "2026-11-12T06:59:05.043Z",
+ "generatedAt": "2026-11-12T07:12:55.159Z",
  "status": "PARTIAL",
  "statusMessage": "Running on AWS observations only: no weather codes, so snow cannot be confirmed. (DATAHUB_API_KEY is not set.)",
  "station": {
@@ -15,16 +15,16 @@
   }
  },
  "latestObservation": {
-  "time": "2026-11-12T04:00:00Z",
+  "time": "2026-11-12T05:00:00Z",
   "weatherCode": null,
-  "temperatureC": 6.25,
-  "minTemperatureC": 5.68,
-  "maxTemperatureC": 6.26,
+  "temperatureC": 5.72,
+  "minTemperatureC": 5.13,
+  "maxTemperatureC": 5.73,
   "visibilityM": null,
   "windSpeedMs": null,
   "windGustMs": null,
   "windDirection": null,
-  "humidityPct": 85.2,
+  "humidityPct": 88.8,
   "mslpHpa": null,
   "precipMm": 0,
   "sources": [
@@ -33,18 +33,20 @@
  },
  "today": {
   "date": "2026-11-12",
-  "verdict": "NO_SNOW",
+  "verdict": "UNCONFIRMED",
   "rule": {
    "hailSeen": false,
    "sleetSeen": false,
    "possibleSnowHours": [],
-   "relevantMissingCodeHours": [],
+   "relevantMissingCodeHours": [
+    "2026-11-12T05:00:00Z"
+   ],
    "unexpectedCodes": [],
-   "verdict": "NO_SNOW",
+   "verdict": "UNCONFIRMED",
    "triggers": [],
    "possibleSnow": false,
    "reasons": [
-    "No snow codes in any reported hour."
+    "Weather code missing for 1 hour(s) where snow could not be ruled out."
    ]
   },
   "scene": {
@@ -53,12 +55,12 @@
    "label": "Sky not reported",
    "basis": "No weather code reported, and no measurable rain."
   },
-  "minTemperatureC": 5.7,
+  "minTemperatureC": 5.1,
   "maxTemperatureC": 7.7,
   "totalPrecipMm": 0,
   "completeness": {
-   "hoursExpected": 7,
-   "hoursReceived": 5,
+   "hoursExpected": 8,
+   "hoursReceived": 6,
    "hoursWithCode": 0
   },
   "sources": [
