@@ -12,12 +12,12 @@ The joke only works if the weather is true, so accuracy comes first. The app use
 | `src/lib/` | Pure, tested logic: the snow rule, the weather classifier, UK-time handling, the seeded RNG and sunset maths |
 | `pipeline/` | The data pipeline (Node and TypeScript) run by GitHub Actions |
 | `src/game/` | Canvas renderer (320 x 200), cast, activity tables, special screens, chiptune fanfare and background music |
-
-The seven characters are named Haydn, Sophie, Santi, Rachel, David, Sam and Div. The names rotate one place around the cast each day, so everyone takes a turn at each running gag. A given date always gets the same names.
 | `src/pages/`, `*.html` | The four pages: title screen, high scores, level select (archive), how it works |
 | `data/` | Published JSON: `latest.json`, `summary.json`, `days/YYYY-MM-DD.json` |
 | `tests/` | Vitest unit tests, with real fixtures in `tests/fixtures/` |
 | `.github/workflows/` | `observe.yml` (hourly pipeline), `pages.yml` (deploy), `ci.yml` (tests) |
+
+The seven characters are named Haydn, Sophie, Santi, Rachel, David, Sam and Div. The names rotate one place around the cast each day, so everyone takes a turn at each running gag. A given date always gets the same names.
 
 ## Setup
 
