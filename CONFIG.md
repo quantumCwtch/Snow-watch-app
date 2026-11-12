@@ -45,6 +45,31 @@ The DataHub glossary entry for the observations `weather_code` parameter also me
 
 Day boundaries are UK local midnights (`Europe/London`), giving 23-hour and 25-hour days at clock changes. A snow code stamped at exactly the following local midnight also counts for the day just ended.
 
+## Nearby confirmation (`confirmation`)
+
+St James's Park has no present-weather sensor, which was confirmed from the AWS files on 2026-11-11. These nearby official stations do have one:
+
+| Station | Source | Distance from Trafalgar Square | Identity check |
+| --- | --- | --- | --- |
+| London City Airport (EGLC) | METAR from aviationweather.gov | 12.7 km E | `icaoId` must be EGLC and the coordinates must match within 0.02° |
+| Northolt (WMO 03672) | Met Office AWS bucket | 20.7 km WNW | Exact `name` and coordinates, as for St James's Park |
+| Heathrow (WMO 03772) | Met Office AWS bucket | 22.5 km W | Exact `name` and coordinates |
+
+| Key | Value | Meaning |
+| --- | --- | --- |
+| `windowHours` | 1 | A nearby report counts for a St James's Park hour if it falls within this many hours either side of that hour. |
+| `snowConfirmMaxTempC` | 2.0 | Nearby snow gives SNOW only if St James's Park measured precipitation (> 0 mm in that hour) with its lowest temperature in the hour at or below this. This is the same value as `possibleSnowMaxTempC`. |
+| `sleetConfirmMaxTempC` | 4.0 | Nearby sleet gives SLEET only if St James's Park measured precipitation at or below this. |
+
+A missing-code hour at St James's Park is **resolved**, so it no longer counts towards UNCONFIRMED, when all of these hold:
+
+- at least one nearby station reported present weather during that hour;
+- none reported snow within the window;
+- none reported unidentified precipitation (`UP`) while St James's Park was wet or at or below `possibleSnowMaxTempC`;
+- any cold precipitation at St James's Park is explained by nearby sleet or hail.
+
+If St James's Park has no observation at all for an hour, nearby sensors can resolve it only if they reported no precipitation of any kind.
+
 ## Scene classifier (`classifier`)
 
 | Key | Value | Meaning |

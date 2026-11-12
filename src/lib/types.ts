@@ -37,9 +37,26 @@ export type Verdict = 'SNOW' | 'SLEET' | 'UNCONFIRMED' | 'NO_SNOW' | 'NO_DATA';
 export interface SnowTrigger {
   time: string;
   localTime: string;
+  /** Met Office weather code (St James's Park), or -999 for a nearby-station report. */
   code: number;
   label: string;
+  /** Set when the trigger came from a nearby confirmation station. */
+  station?: string;
+  /** Raw present-weather groups from the nearby station, e.g. "-SN". */
+  wx?: string;
 }
+
+/** A present-weather report from a nearby confirmation station (Heathrow, Northolt, London City). */
+export interface NearbyReport {
+  stationId: string;
+  stationName: string;
+  /** ISO time of the report (UTC). */
+  time: string;
+  /** Aviation-style weather groups ("NSW" = no significant weather), or null if unavailable. */
+  wx: string | null;
+}
+
+export type ConfirmedBy = 'st-jamess-park' | 'nearby' | null;
 
 export interface SnowRuleResult {
   verdict: Verdict;
@@ -56,6 +73,12 @@ export interface SnowRuleResult {
   relevantMissingCodeHours: string[];
   /** Codes above the documented range (possible scheme change). */
   unexpectedCodes: number[];
+  /** Where a SNOW or SLEET verdict was confirmed. */
+  confirmedBy: ConfirmedBy;
+  /** Hours (UTC) when a nearby station reported snow (confirmed or not). */
+  nearbySnowHours: string[];
+  /** Hours of the day covered by at least one nearby present-weather report. */
+  nearbyCoverageHours: number;
   reasons: string[];
 }
 
@@ -116,6 +139,10 @@ export interface DayRecord {
   raw: {
     datahub: unknown[] | null;
     aws: AwsRawMinutes | null;
+    /** Nearby present-weather reports as runs: [stationId, firstTime, lastTime, wx]. */
+    nearby?: Array<[string, string, string, string | null]>;
+    /** Raw METAR text from London City Airport for the day. */
+    metar?: string[];
   };
 }
 
@@ -160,6 +187,8 @@ export interface LatestSnapshot {
     verdict: Verdict;
     possibleSnow: boolean;
     hailSeen: boolean;
+    confirmedBy?: ConfirmedBy;
+    nearbySnow?: boolean;
     scene: Classification;
     dayFile: string;
   } | null;
@@ -171,6 +200,8 @@ export interface SummaryDay {
   verdict: Verdict;
   possibleSnow: boolean;
   hailSeen: boolean;
+  confirmedBy?: ConfirmedBy;
+  nearbySnow?: boolean;
   category: SceneCategory;
   variant: SceneVariant;
   minTemperatureC: number | null;

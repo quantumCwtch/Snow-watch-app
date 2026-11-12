@@ -32,7 +32,12 @@ export interface Intro {
   blocking: boolean;
   /** Force the snow scene after dismissal. */
   snowScene: boolean;
+  /** Extra line for the screen (where snow was confirmed, or seen nearby). */
+  note?: string;
 }
+
+const CONFIRMED_NEARBY = 'CONFIRMED BY NEARBY SNOW SENSOR';
+const SEEN_NEARBY = 'SNOW SEEN NEARBY';
 
 export function decideIntro(latest: LatestSnapshot): Intro {
   if (latest.status === 'STATION_MISMATCH') return { screen: 'station-mismatch', date: '', blocking: true, snowScene: false };
@@ -40,11 +45,17 @@ export function decideIntro(latest: LatestSnapshot): Intro {
     return { screen: 'signal-lost', date: latest.today?.date ?? '', blocking: !latest.today, snowScene: false };
   }
   // Confirmed snow (yesterday's final verdict, or a snow code reported today so far).
-  if (latest.today.verdict === 'SNOW') return { screen: 'snow-day', date: latest.today.date, blocking: false, snowScene: true };
-  if (latest.yesterday?.verdict === 'SNOW') return { screen: 'snow-day', date: latest.yesterday.date, blocking: false, snowScene: true };
+  if (latest.today.verdict === 'SNOW') {
+    return { screen: 'snow-day', date: latest.today.date, blocking: false, snowScene: true, note: latest.today.rule.confirmedBy === 'nearby' ? CONFIRMED_NEARBY : undefined };
+  }
+  if (latest.yesterday?.verdict === 'SNOW') {
+    return { screen: 'snow-day', date: latest.yesterday.date, blocking: false, snowScene: true, note: latest.yesterday.confirmedBy === 'nearby' ? CONFIRMED_NEARBY : undefined };
+  }
   if (latest.yesterday) {
     const s = screenForVerdict(latest.yesterday);
-    if (s && s !== 'signal-lost') return { screen: s, date: latest.yesterday.date, blocking: false, snowScene: false };
+    if (s && s !== 'signal-lost') {
+      return { screen: s, date: latest.yesterday.date, blocking: false, snowScene: false, note: s === 'unconfirmed' && latest.yesterday.nearbySnow ? SEEN_NEARBY : undefined };
+    }
   }
   if (latest.today.rule.possibleSnow) return { screen: 'possible-snow', date: latest.today.date, blocking: false, snowScene: false };
   return { screen: null, date: latest.today.date, blocking: false, snowScene: false };

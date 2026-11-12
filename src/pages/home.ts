@@ -109,6 +109,7 @@ async function main() {
         date: intro.date,
         snowCount: latest?.snowDaysRecorded ?? 0,
         message: latest?.statusMessage,
+        note: intro.note,
         preview,
       },
       intro.blocking
@@ -132,13 +133,17 @@ async function main() {
 function screenAnnouncement(intro: Intro): string {
   switch (intro.screen) {
     case 'snow-day':
-      return `SNOW DAY SNOW DAY SNOW DAY! Snow was observed at St James's Park (${intro.date}).`;
+      return intro.note
+        ? `SNOW DAY SNOW DAY SNOW DAY! Snow was reported by a nearby snow sensor while St James's Park recorded cold precipitation (${intro.date}).`
+        : `SNOW DAY SNOW DAY SNOW DAY! Snow was observed at St James's Park (${intro.date}).`;
     case 'sleet':
       return `So close. It was sleet (${intro.date}).`;
     case 'hail':
       return `Hail is not snow. Nice try, sky (${intro.date}).`;
     case 'unconfirmed':
-      return `Unconfirmed (${intro.date}): weather codes were missing for hours where snow could not be ruled out. No snow day is declared without proof.`;
+      return intro.note
+        ? `Unconfirmed (${intro.date}): snow was seen at a nearby station but not confirmed in central London.`
+        : `Unconfirmed (${intro.date}): snow could not be ruled out for some hours. No snow day is declared without proof.`;
     case 'possible-snow':
       return `Possible snow, awaiting confirmation (${intro.date}): precipitation fell at 2 °C or below, but no weather code confirms snow.`;
     case 'signal-lost':
@@ -163,7 +168,7 @@ function fillPanels(latest: LatestSnapshot | null, preview: boolean) {
   if (y) {
     const span = Object.assign(document.createElement('span'), {
       className: `verdict-${y.verdict}`,
-      textContent: verdictLabel(y.verdict, y.possibleSnow, y.hailSeen),
+      textContent: verdictLabel(y.verdict, y.possibleSnow, y.hailSeen, y.confirmedBy ?? null, y.nearbySnow ?? false),
     });
     yd.append(`${y.date}: `, span);
     if (y.dayFile && !preview) {
@@ -180,7 +185,7 @@ function fillPanels(latest: LatestSnapshot | null, preview: boolean) {
     td.append(
       Object.assign(document.createElement('span'), {
         className: `verdict-${t.verdict}`,
-        textContent: verdictLabel(t.verdict, t.rule.possibleSnow, t.rule.hailSeen),
+        textContent: verdictLabel(t.verdict, t.rule.possibleSnow, t.rule.hailSeen, t.rule.confirmedBy, t.rule.nearbySnowHours.length > 0),
       }),
       ` (${c.hoursReceived} of ${c.hoursExpected} hours received, ${c.hoursWithCode} with a weather code; provisional)`,
     );

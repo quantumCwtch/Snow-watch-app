@@ -13,7 +13,7 @@ function table(days: SummaryDay[], empty: string): HTMLElement {
         'tr',
         {},
         el('td', {}, el('a', { href: `archive.html?date=${d.date}` }, d.date)),
-        el('td', {}, verdictLabel(d.verdict, d.possibleSnow, d.hailSeen)),
+        el('td', {}, verdictLabel(d.verdict, d.possibleSnow, d.hailSeen, d.confirmedBy ?? null, d.nearbySnow ?? false)),
         el('td', {}, `${fmtTemp(d.minTemperatureC)} to ${fmtTemp(d.maxTemperatureC)}`),
         el('td', {}, el('a', { href: `data/days/${d.date}.json` }, 'JSON')),
       ),

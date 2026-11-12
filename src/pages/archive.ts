@@ -34,7 +34,10 @@ async function show(date: string) {
   const play = () => stage.showScene(plan, false, hud, false);
   if (screen) {
     const snowCount = summary ? summary.snowDays.filter((d) => d <= date).length : day.verdict === 'SNOW' ? 1 : 0;
-    stage.showSpecial(screen, { date, snowCount, message: day.rule.reasons.join(' ') }, play);
+    const note = day.rule.confirmedBy === 'nearby' && screen === 'snow-day'
+      ? 'CONFIRMED BY NEARBY SNOW SENSOR'
+      : screen === 'unconfirmed' && (day.rule.nearbySnowHours ?? []).length ? 'SNOW SEEN NEARBY' : undefined;
+    stage.showSpecial(screen, { date, snowCount, message: day.rule.reasons.join(' '), note }, play);
     if (screen === 'snow-day') playFanfare();
   } else play();
 
@@ -43,7 +46,7 @@ async function show(date: string) {
     'div',
     {},
     el('dl', { className: 'stats' },
-      el('dt', {}, 'Verdict'), el('dd', { className: `verdict-${day.verdict}` }, verdictLabel(day.verdict, day.rule.possibleSnow, day.rule.hailSeen)),
+      el('dt', {}, 'Verdict'), el('dd', { className: `verdict-${day.verdict}` }, verdictLabel(day.verdict, day.rule.possibleSnow, day.rule.hailSeen, day.rule.confirmedBy ?? null, (day.rule.nearbySnowHours ?? []).length > 0)),
       el('dt', {}, 'Why'), el('dd', {}, day.rule.reasons.join(' ')),
       el('dt', {}, 'Triggering hours'), el('dd', {}, day.rule.triggers.length ? day.rule.triggers.map((t) => `${t.localTime} code ${t.code} (${t.label})`).join('; ') : 'None'),
       el('dt', {}, 'Scene'), el('dd', {}, `${day.scene.label}: ${day.scene.basis}`),
@@ -51,6 +54,7 @@ async function show(date: string) {
       el('dt', {}, 'Precipitation'), el('dd', {}, day.totalPrecipMm === null ? 'Not available' : `${day.totalPrecipMm} mm`),
       el('dt', {}, 'Completeness'), el('dd', {}, `${c.hoursReceived} of ${c.hoursExpected} hours; ${c.hoursWithCode} with a weather code`),
       el('dt', {}, 'Sources'), el('dd', {}, day.sources.join(' + ') || 'none'),
+      el('dt', {}, 'Nearby snow sensors'), el('dd', {}, `${day.rule.nearbyCoverageHours ?? 0} of ${c.hoursExpected} hours covered by London City Airport, Northolt or Heathrow${(day.rule.nearbySnowHours ?? []).length ? `; snow reported nearby in ${day.rule.nearbySnowHours.length} hour(s)` : ''}`),
       el('dt', {}, 'Cross-check'), el('dd', {}, day.crossCheck ? `${day.crossCheck.comparedHours} hours compared, max difference ${day.crossCheck.maxTemperatureDifferenceC} °C${day.crossCheck.ok ? '' : ' (outside tolerance)'}` : 'Not possible (one source only)'),
       el('dt', {}, 'Retrieved'), el('dd', {}, `${ukTimeOf(new Date(day.retrievedAt))} UK time, ${day.retrievedAt.slice(0, 10)}`),
       el('dt', {}, 'Raw data'), el('dd', {}, el('a', { href: `${BASE}data/days/${date}.json` }, `data/days/${date}.json`)),

@@ -10,6 +10,8 @@ import {
   parseAwsPrefix,
   mergeMinutes,
   awsStationMatches,
+  SJP_AWS,
+  type AwsStationSpec,
   type DatahubNearest,
   type DatahubObservation,
   type AwsMinute,
@@ -90,9 +92,9 @@ const decodeXml = (s: string) =>
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, '');
 
-/** Fetch all St James's Park one-minute rows overlapping [start, end). */
-export async function fetchAws(start: Date, end: Date): Promise<AwsResult> {
-  const a = config.station.aws;
+/** Fetch all one-minute rows for a station (St James's Park by default) overlapping [start, end). */
+export async function fetchAws(start: Date, end: Date, station: AwsStationSpec = SJP_AWS): Promise<AwsResult> {
+  const a = { ...config.station.aws, ...station };
   // Prefixes start with the publication time, which is at or after the period covered.
   const dates = new Set<string>();
   for (let t = start.getTime(); t <= end.getTime() + 86400000; t += 86400000) dates.add(ymd(new Date(t)));
@@ -121,7 +123,7 @@ export async function fetchAws(start: Date, end: Date): Promise<AwsResult> {
   for (const { w, out } of fetched) {
     for (const { key, minutes } of out) {
       if (minutes.length === 0) continue;
-      if (!minutes.every(awsStationMatches)) {
+      if (!minutes.every((m) => awsStationMatches(m, station))) {
         stationVerified = false;
         stationName = minutes[0].name;
         continue; // never use rows from a different station

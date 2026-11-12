@@ -19,6 +19,8 @@ export interface ScreenOptions {
   date: string;
   snowCount: number;
   message?: string;
+  /** Short extra line, e.g. where snow was confirmed. */
+  note?: string;
   preview?: boolean;
 }
 
@@ -76,6 +78,7 @@ export function renderSnowDay(ctx: Ctx, o: ScreenOptions) {
   px(ctx, 40, 143, 240, 1, P.gold);
   drawText(ctx, `HIGH SCORE  ${o.date}`, W / 2, 125, P.gold, 1, { align: 'centre' });
   drawText(ctx, `SNOW DAYS RECORDED: ${String(o.snowCount).padStart(3, '0')}`, W / 2, 135, P.white, 1, { align: 'centre' });
+  if (o.note) drawText(ctx, o.note.toUpperCase(), W / 2, 148, P.cyan, 1, { align: 'centre', shadow: P.black });
   cast(ctx, o.t, r, true, 178);
   pressStart(ctx, o.t, r, 188);
   ctx.restore();
@@ -142,8 +145,13 @@ export function renderUnconfirmed(ctx: Ctx, o: ScreenOptions, possible: boolean)
     drawText(ctx, 'PRECIPITATION AT 2°C OR BELOW, BUT NO WEATHER CODE.', W / 2, 82, P.pale, 1, { align: 'centre' });
   } else {
     bigWord(ctx, 'UNCONFIRMED', 22, 3, P.yellow);
-    drawText(ctx, 'WEATHER CODES MISSING. SNOW NOT RULED OUT.', W / 2, 60, P.pale, 1, { align: 'centre' });
-    drawText(ctx, 'NO SNOW DAY DECLARED WITHOUT PROOF.', W / 2, 72, P.pale, 1, { align: 'centre' });
+    if (o.note) {
+      drawText(ctx, o.note.toUpperCase(), W / 2, 60, P.cyan, 1, { align: 'centre' });
+      drawText(ctx, 'BUT NOT CONFIRMED IN CENTRAL LONDON.', W / 2, 72, P.pale, 1, { align: 'centre' });
+    } else {
+      drawText(ctx, 'SNOW COULD NOT BE RULED OUT.', W / 2, 60, P.pale, 1, { align: 'centre' });
+      drawText(ctx, 'NO SNOW DAY DECLARED WITHOUT PROOF.', W / 2, 72, P.pale, 1, { align: 'centre' });
+    }
   }
   drawText(ctx, o.date, W / 2, 140, P.grey, 1, { align: 'centre' });
   if (glow) drawText(ctx, 'INSERT COIN TO CONFIRM SNOW', W / 2, 154, P.white, 1, { align: 'centre' });

@@ -73,15 +73,16 @@ npm test
 npm run pipeline -- --data-dir /tmp/snow-data
 ```
 
-The last command runs the real pipeline. Point `--data-dir` somewhere else to avoid touching `data/`. Add `--no-datahub` to force AWS-only, or `--now 2026-11-11T12:00:00Z` to pretend it is another time.
+The last command runs the real pipeline. Behind an HTTPS proxy (as in some cloud sandboxes), use `npm run pipeline:proxy` instead, so Node's `fetch` uses the proxy. Point `--data-dir` somewhere else to avoid touching `data/`. Add `--no-datahub` to force AWS-only, or `--now 2026-11-11T12:00:00Z` to pretend it is another time.
 
 ## How the verdict is decided
 
 The rule is in `src/lib/snowRule.ts`, a pure function covered by `tests/snowRule.test.ts`. Days are **UK calendar days** (Europe/London, so 23 or 25 hours long when the clocks change).
 
 1. **SNOW**: any hourly observation that day has a snow weather code (22 to 27). A snow code at exactly the following local midnight also counts.
-2. **UNCONFIRMED**: no snow code, but codes are missing for hours where snow could not be ruled out (temperature at or below 6 °C, or unknown), or under half the hours arrived. If precipitation fell at or below 2 °C, the page shows "POSSIBLE SNOW, AWAITING CONFIRMATION". The AWS data is used for this check (precipitation and one-minute temperatures).
-3. **SLEET**: the only wintry codes were sleet (16 to 18). Shown as a "SO CLOSE" near miss.
+   Or: a nearby present-weather sensor (London City Airport, Northolt or Heathrow) reports falling snow, and within an hour St James's Park itself measured precipitation at 2 °C or below. This is recorded as "confirmed nearby".
+2. **UNCONFIRMED**: no snow, but snow cannot be ruled out. Either codes are missing for hours where snow was plausible (temperature at or below 6 °C, or unknown) and no nearby sensor report settles them, or under half the hours arrived. If precipitation fell at or below 2 °C, the page shows "POSSIBLE SNOW, AWAITING CONFIRMATION". The AWS data is used for this check (precipitation and one-minute temperatures).
+3. **SLEET**: the only wintry weather was sleet: a sleet code (16 to 18), or sleet nearby with precipitation at St James's Park at 4 °C or below. Shown as a "SO CLOSE" near miss.
 4. **NO SNOW**: otherwise. Hail (19 to 21) gets its own "HAIL IS NOT SNOW" message.
 5. **NO DATA**: nothing was received (shown as SIGNAL LOST).
 
@@ -94,7 +95,18 @@ The scene uses the **most significant** weather observed that day, not the avera
 - **Primary: Met Office Weather DataHub, Land Observations API** (`https://data.hub.api.metoffice.gov.uk/observation-land/1`). Hourly observations for 48 hours. The field names (`datetime`, `weather_code`, `temperature`, `visibility`, `wind_speed`, `wind_gust`, `wind_direction`, `humidity`, `mslp`, `pressure_tendency`) were taken from the official OpenAPI spec and sample responses, saved in `tests/fixtures/datahub/`.
 - **Secondary: Met Office UK Land Surface Observations, AWS Open Data Registry** (`s3://met-office-land-observations-data`, eu-west-2, read anonymously over HTTPS). One-minute, pipe-separated CSV files, one per station per hour, kept for about a week. The parser was built against real St James's Park files (`tests/fixtures/aws/2026-11-10/`).
 
-**Important finding:** the AWS files for St James's Park carry only temperature, precipitation, humidity and ground/soil temperatures. They have **no present-weather code, wind or visibility**, which was checked across every file in the bucket on 2026-11-11. The AWS source can back-fill and cross-check, but it cannot confirm snow by itself. A snow verdict needs DataHub.
+**Important finding:** the AWS files for St James's Park carry only temperature, precipitation, humidity and ground/soil temperatures. They have **no present-weather code, wind or visibility**, which was checked across every file in the bucket on 2026-11-11. St James's Park has no sensor that can tell snow from rain, so DataHub's weather code for it is probably always empty (to be confirmed once a key is added).
+
+- **Snow confirmation: nearby present-weather sensors.**
+  - **London City Airport** (EGLC, about 13 km east): METAR reports from NOAA's Aviation Weather Center API (`https://aviationweather.gov/api/data/metar?ids=EGLC&format=json&hours=N`). No key is needed, and about 8 days of history are available. The real sample is in `tests/fixtures/metar/`.
+  - **Northolt** (about 21 km) and **Heathrow** (about 22 km): Met Office one-minute files from the same AWS bucket. Their `present_weather_1_minute_10_minute_weighted_mean` column uses aviation codes such as `NSW`, `BR`, `-RA`, `RERA` and `UP`. A real sample is in `tests/fixtures/aws/heathrow/`.
+  - The codes are parsed in `src/lib/presentWeather.ts`:
+    - `SN`, `SG` and recent snow (`RESN`) count as snow.
+    - Rain and snow mixed (`RASN`), and ice pellets (`PL`), count as sleet.
+    - `GR` and `GS` count as hail.
+    - Blowing or drifting snow (`BLSN`, `DRSN`) and vicinity groups (`VC...`) are ignored.
+    - `UP` (unidentified precipitation) is treated as unknown.
+  - Nearby reports are stored in every day file (`raw.nearby` as runs, `raw.metar` as raw text) for traceability.
 
 - **Historical context (not implemented yet):** MIDAS Open via CEDA (Open Government Licence) is quality-controlled but published with a delay. It would suit a future "past snow days" feature.
 

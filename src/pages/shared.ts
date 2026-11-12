@@ -1,5 +1,5 @@
 // Helpers shared by every page.
-import type { LatestSnapshot, Summary, DayRecord, SceneCategory, SceneVariant, Verdict, HourlyObs } from '../lib/types';
+import type { SnowRuleResult, LatestSnapshot, Summary, DayRecord, SceneCategory, SceneVariant, Verdict, HourlyObs } from '../lib/types';
 import { categoryLabel } from '../lib/classifier';
 import { config } from '../lib/config';
 import { ukTimeOf, ukDateOf, addDays } from '../lib/ukTime';
@@ -39,13 +39,25 @@ export function fmtObsTime(iso: string | null | undefined): string {
 export const VERDICT_TEXT: Record<Verdict, string> = {
   SNOW: 'SNOW! Snow was observed.',
   SLEET: 'Sleet only. So close.',
-  UNCONFIRMED: 'Unconfirmed: weather codes missing, snow not ruled out.',
+  UNCONFIRMED: 'Unconfirmed: snow could not be ruled out.',
   NO_SNOW: 'No snow.',
   NO_DATA: 'No data received.',
 };
 
-export function verdictLabel(v: Verdict, possibleSnow = false, hail = false): string {
+export function verdictLabel(
+  v: Verdict,
+  possibleSnow = false,
+  hail = false,
+  confirmedBy: string | null = null,
+  nearbySnow = false,
+): string {
+  if (v === 'SNOW' && confirmedBy === 'nearby') {
+    return 'SNOW! Confirmed by a nearby snow sensor, with cold precipitation at St James\'s Park.';
+  }
+  if (v === 'SNOW') return 'SNOW! A snow weather code was reported at St James\'s Park.';
   if (v === 'UNCONFIRMED' && possibleSnow) return 'Possible snow, awaiting confirmation.';
+  if (v === 'UNCONFIRMED' && nearbySnow) return 'Unconfirmed: snow seen nearby, not confirmed in central London.';
+  if (v === 'NO_SNOW' && nearbySnow) return 'No snow in central London (snow was reported further out).';
   if (v === 'NO_SNOW' && hail) return 'No snow (hail is not snow).';
   return VERDICT_TEXT[v];
 }
@@ -135,6 +147,9 @@ export function previewSnapshot(id: string, now: Date): { snapshot: LatestSnapsh
   const rule = {
     verdict, triggers: [], hailSeen: id === 'hail', sleetSeen: id === 'sleet', possibleSnow: id === 'possible-snow',
     possibleSnowHours: [], relevantMissingCodeHours: [], unexpectedCodes: [], reasons: ['Preview sample data.'],
+    confirmedBy: (id === 'snow' || id === 'sleet' ? 'nearby' : null) as SnowRuleResult['confirmedBy'],
+    nearbySnowHours: id === 'unconfirmed' ? [new Date(Math.floor(now.getTime() / 3600000) * 3600000).toISOString()] : [],
+    nearbyCoverageHours: 12,
   };
   const snapshot: LatestSnapshot = {
     schema: 1,
@@ -152,6 +167,7 @@ export function previewSnapshot(id: string, now: Date): { snapshot: LatestSnapsh
     },
     yesterday: {
       date: addDays(today, -1), verdict, possibleSnow: id === 'possible-snow', hailSeen: id === 'hail', scene,
+      confirmedBy: rule.confirmedBy, nearbySnow: id === 'unconfirmed',
       dayFile: '',
     },
     snowDaysRecorded: id === 'snow' ? 1 : 0,

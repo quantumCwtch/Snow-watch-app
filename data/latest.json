@@ -1,8 +1,8 @@
 {
  "schema": 1,
- "generatedAt": "2026-11-12T07:12:55.159Z",
+ "generatedAt": "2026-11-12T07:15:06.124Z",
  "status": "PARTIAL",
- "statusMessage": "Running on AWS observations only: no weather codes, so snow cannot be confirmed. (DATAHUB_API_KEY is not set.)",
+ "statusMessage": "St James's Park observations from AWS only (no DataHub weather codes); snow is confirmed using nearby present-weather sensors. (DATAHUB_API_KEY is not set.) Snow confirmation sensors: London City Airport, Northolt, Heathrow.",
  "station": {
   "name": "London, St James's Park",
   "wmoId": "03770",
@@ -33,7 +33,7 @@
  },
  "today": {
   "date": "2026-11-12",
-  "verdict": "UNCONFIRMED",
+  "verdict": "NO_SNOW",
   "rule": {
    "hailSeen": false,
    "sleetSeen": false,
@@ -42,11 +42,14 @@
     "2026-11-12T05:00:00Z"
    ],
    "unexpectedCodes": [],
-   "verdict": "UNCONFIRMED",
+   "nearbySnowHours": [],
+   "nearbyCoverageHours": 6,
+   "verdict": "NO_SNOW",
    "triggers": [],
    "possibleSnow": false,
+   "confirmedBy": null,
    "reasons": [
-    "Weather code missing for 1 hour(s) where snow could not be ruled out."
+    "No snow: nearby present-weather sensors covered 6 hour(s) and ruled out snow wherever it was cold enough."
    ]
   },
   "scene": {
@@ -72,6 +75,8 @@
   "verdict": "NO_SNOW",
   "possibleSnow": false,
   "hailSeen": false,
+  "confirmedBy": null,
+  "nearbySnow": false,
   "scene": {
    "category": "light-rain",
    "variant": "normal",

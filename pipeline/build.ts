@@ -11,7 +11,11 @@ import type {
   SourceId,
   AwsRawMinutes,
   FeedStatus,
+  NearbyReport,
+  Classification,
 } from '../src/lib/types';
+import { categoryLabel } from '../src/lib/classifier';
+import { toRuns } from './nearby';
 import { applySnowRule, completenessOf } from '../src/lib/snowRule';
 import { classify } from '../src/lib/classifier';
 import { utcHoursOfUkDay, ukDayBoundsUtc, addDays, daysBetween } from '../src/lib/ukTime';
@@ -86,9 +90,24 @@ export interface DayInputs {
   awsHourly: HourlyObs[];
   awsMinutes: AwsMinute[];
   awsObjectKeys: string[];
+  /** Present-weather reports from nearby confirmation stations. */
+  nearby?: NearbyReport[];
+  /** Raw METAR records (London City) for traceability. */
+  rawMetars?: Array<{ time: string; rawOb: string }>;
   station: StationIdentity;
   retrievedAt: string;
   upTo?: Date;
+}
+
+/** Keep the scene consistent with a verdict confirmed by nearby stations. */
+function sceneForVerdict(scene: Classification, verdict: string, confirmedBy: string | null): Classification {
+  if (verdict === 'SNOW' && scene.category !== 'snow') {
+    return { category: 'snow', variant: 'normal', label: categoryLabel('snow'), basis: confirmedBy === 'nearby' ? 'Snow confirmed by a nearby present-weather sensor and cold precipitation at St James\'s Park.' : 'Snow weather code reported.' };
+  }
+  if (verdict === 'SLEET' && !['snow', 'sleet-hail'].includes(scene.category)) {
+    return { category: 'sleet-hail', variant: 'normal', label: categoryLabel('sleet-hail'), basis: 'Sleet confirmed nearby with precipitation at St James\'s Park.' };
+  }
+  return scene;
 }
 
 export function summariseDay(inp: DayInputs) {
@@ -96,8 +115,14 @@ export function summariseDay(inp: DayInputs) {
   const inDay = hoursForDay(inp.date, merged, inp.upTo);
   // Include the boundary (next local midnight) obs for the snow rule only.
   const boundary = inp.upTo ? [] : merged.filter((h) => h.time === boundaryHour(inp.date));
-  const rule = applySnowRule({ date: inp.date, hourly: [...inDay, ...boundary], upTo: inp.upTo });
-  const scene = classify(inDay);
+  const { start: dStart, end: dEnd } = ukDayBoundsUtc(inp.date);
+  const win = config.confirmation.windowHours * 3600000;
+  const nearby = (inp.nearby ?? []).filter((r) => {
+    const t = Date.parse(r.time);
+    return t >= dStart.getTime() - win && t < dEnd.getTime() + win && (!inp.upTo || t <= inp.upTo.getTime());
+  });
+  const rule = applySnowRule({ date: inp.date, hourly: [...inDay, ...boundary], nearby, upTo: inp.upTo });
+  const scene = sceneForVerdict(classify(inDay), rule.verdict, rule.confirmedBy);
   const { start, end } = ukDayBoundsUtc(inp.date);
   const dayMinutes = inp.awsMinutes.filter((m) => {
     const t = Date.parse(m.time);
@@ -126,6 +151,7 @@ export function summariseDay(inp: DayInputs) {
     completeness: completenessOf(inp.date, inDay, inp.upTo),
     sources,
     dayMinutes,
+    nearby,
   };
 }
 
@@ -153,7 +179,21 @@ export function buildDayRecord(inp: DayInputs): DayRecord {
     station: inp.station,
     retrievedAt: inp.retrievedAt,
     hourly: s.merged,
-    raw: { datahub: dhRaw.length ? dhRaw : null, aws: awsRaw },
+    raw: {
+      datahub: dhRaw.length ? dhRaw : null,
+      aws: awsRaw,
+      nearby: s.nearby.length ? toRuns(s.nearby) : undefined,
+      metar: inp.rawMetars?.length
+        ? inp.rawMetars
+            .filter((m) => {
+              const t = Date.parse(m.time);
+              const { start, end } = ukDayBoundsUtc(inp.date);
+              return t >= start.getTime() - 3600000 && t < end.getTime() + 3600000;
+            })
+            .sort((a, b) => a.time.localeCompare(b.time))
+            .map((m) => m.rawOb)
+        : undefined,
+    },
   };
 }
 
@@ -163,6 +203,8 @@ export function summaryDayOf(r: DayRecord): SummaryDay {
     verdict: r.verdict,
     possibleSnow: r.rule.possibleSnow,
     hailSeen: r.rule.hailSeen,
+    confirmedBy: r.rule.confirmedBy ?? null,
+    nearbySnow: (r.rule.nearbySnowHours ?? []).length > 0,
     category: r.scene.category,
     variant: r.scene.variant,
     minTemperatureC: r.minTemperatureC,
@@ -229,7 +271,7 @@ export function feedStatus(
   if (datahubOk) return { status: 'PARTIAL', message: 'DataHub received; AWS cross-check unavailable.' };
   return {
     status: 'PARTIAL',
-    message: 'Running on AWS observations only: no weather codes, so snow cannot be confirmed.',
+    message: "St James's Park observations from AWS only (no DataHub weather codes); snow is confirmed using nearby present-weather sensors.",
   };
 }
 
@@ -281,6 +323,8 @@ export function latestOf(params: {
           verdict: params.yesterday.verdict,
           possibleSnow: params.yesterday.rule.possibleSnow,
           hailSeen: params.yesterday.rule.hailSeen,
+          confirmedBy: params.yesterday.rule.confirmedBy ?? null,
+          nearbySnow: (params.yesterday.rule.nearbySnowHours ?? []).length > 0,
           scene: params.yesterday.scene,
           dayFile: `data/days/${params.yesterday.date}.json`,
         }

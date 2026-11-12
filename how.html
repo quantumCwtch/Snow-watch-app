@@ -27,6 +27,7 @@
       <p>Trafalgar Square has no weather station of its own. The closest official Met Office station is <strong>London, St James's Park</strong> (WMO station 03770), about 600 metres away. Every verdict and every scene on this site is built from observations at that one station. The app never uses forecasts, never randomises the weather, and never quietly switches to another station.</p>
       <ul>
         <li><strong>Primary source: Met Office Weather DataHub, Land Observations API.</strong> Hourly observations for the last 48 hours, including the Met Office <em>weather type code</em>, temperature, visibility, wind and pressure. Each run first asks DataHub for the station nearest Trafalgar Square and refuses to publish anything unless it is St James's Park.</li>
+        <li><strong>Snow confirmation: nearby official present-weather sensors.</strong> St James's Park has no sensor that can tell snow from rain, so the app also reads the nearest stations that do: <strong>London City Airport</strong> (about 13&nbsp;km east, aviation weather reports via NOAA's Aviation Weather Center), <strong>Northolt</strong> (about 21&nbsp;km) and <strong>Heathrow</strong> (about 22&nbsp;km), both from the Met Office. Their reports only ever <em>support</em> a St James's Park measurement, never replace it.</li>
         <li><strong>Secondary source: Met Office UK Land Surface Observations on the AWS Open Data Registry</strong> (bucket <code>met-office-land-observations-data</code>). One-minute observations used to back-fill missed runs, add precipitation totals and cross-check DataHub temperatures. The station name and coordinates in every file are checked before use.</li>
       </ul>
       <p>A GitHub Actions job fetches the data every hour, applies the rules below, and commits the results as JSON files in the <code>data/</code> folder. Every day's file includes the raw observations it was based on, so any verdict can be checked.</p>
@@ -36,9 +37,14 @@
       <h2 id="rule-h">The snow rule</h2>
       <p>Each day is a UK calendar day (midnight to midnight, UK local time), so days are 23 or 25 hours long when the clocks change.</p>
       <ol>
-        <li><strong>SNOW</strong> if any hourly observation that day has a snow weather code (codes 22 to 27: light or heavy snow, and snow showers). A snow code reported exactly at the following midnight also counts, because it was snowing as the day ended.</li>
-        <li><strong>UNCONFIRMED</strong> if there is no snow code but codes are missing for hours when snow could not be ruled out (the temperature was 6&nbsp;°C or lower, or unknown), or fewer than half the hours arrived. If precipitation fell with the temperature at or below 2&nbsp;°C, the page shows <em>POSSIBLE SNOW, AWAITING CONFIRMATION</em>. Without a code, snow is never declared.</li>
-        <li><strong>SLEET</strong> (a near miss) if the only wintry codes seen are sleet codes (16 to 18).</li>
+        <li><strong>SNOW</strong> if either:
+          <ul>
+            <li>St James's Park reports a snow weather code (22 to 27) in any hour of the day, or at the following midnight; or</li>
+            <li>a nearby sensor reports falling snow, <em>and</em> within an hour of that report St James's Park itself measured precipitation with the temperature at 2&nbsp;°C or below. Snow seen nearby while central London stayed dry or mild does not count.</li>
+          </ul>
+        </li>
+        <li><strong>UNCONFIRMED</strong> if snow cannot be ruled out: hours with no weather code at St James's Park when it was 6&nbsp;°C or colder that no nearby sensor can settle, or fewer than half the hours arrived. If precipitation fell at 2&nbsp;°C or below and nothing explains it, the page shows <em>POSSIBLE SNOW, AWAITING CONFIRMATION</em>.</li>
+        <li><strong>SLEET</strong> (a near miss) if the only wintry weather was sleet: a sleet code at St James's Park, or sleet (rain and snow mixed) reported nearby while St James's Park measured precipitation at 4&nbsp;°C or below.</li>
         <li><strong>NO SNOW</strong> otherwise. Hail (codes 19 to 21) is not snow, but it gets its own message.</li>
       </ol>
       <p>Codes follow the Met Office DataHub <a href="https://datahub.metoffice.gov.uk/definition-of-codes">Definition of Codes</a> table. Every threshold is listed in <code>CONFIG.md</code> in the repository.</p>
@@ -57,7 +63,8 @@
         <li>St James's Park is 600 metres from Trafalgar Square. Snow can be patchy, so the two places will not always match.</li>
         <li>Observations are hourly. A brief flurry between two observation times can be missed.</li>
         <li>Weather codes come from automatic sensors and can occasionally be wrong. The data is not the Met Office's quality-controlled climate record (that is published later, through MIDAS Open).</li>
-        <li>The AWS feed for St James's Park carries no weather code, wind or visibility. When DataHub is unavailable, days can only be marked UNCONFIRMED or NO SNOW, never SNOW.</li>
+        <li>St James's Park has no present-weather sensor, so snow is usually confirmed with help from stations 13 to 22&nbsp;km away. Very light snow that does not register in the St James's Park rain gauge can therefore be missed, and is shown as UNCONFIRMED if it was cold enough.</li>
+        <li>Automatic sensors sometimes report <em>unidentified precipitation</em>. This blocks a verdict only when St James's Park was wet or near freezing.</li>
         <li>If data is missing or late, the page says so (SIGNAL LOST) instead of guessing.</li>
       </ul>
     </section>
@@ -67,6 +74,8 @@
       <ul>
         <li>Met Office Weather DataHub Land Observations: © Crown copyright, Met Office. Used under the <a href="https://datahub.metoffice.gov.uk/">Weather DataHub</a> terms and conditions.</li>
         <li>Met Office UK Land Surface Observations (AWS Open Data Registry): British Crown copyright, Met Office, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike (CC BY-SA)</a>. Source: <a href="https://registry.opendata.aws/met-office-uk-land-observations/">registry.opendata.aws/met-office-uk-land-observations</a>. The derived data files in this site's <code>data/</code> folder are shared under the same licence.</li>
+        <li>Heathrow and Northolt observations: from the same Met Office AWS dataset, British Crown copyright, CC BY-SA.</li>
+        <li>London City Airport METAR reports: retrieved from the NOAA Aviation Weather Center (<a href="https://aviationweather.gov/">aviationweather.gov</a>).</li>
         <li>Artwork, characters, the pixel font and the chiptune fanfare are original to this project. They do not imitate any existing game, character, publisher or soundtrack.</li>
       </ul>
     </section>

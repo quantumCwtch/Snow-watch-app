@@ -14,8 +14,12 @@ describe('intro screen selection', () => {
     expect(screenForVerdict({ verdict: 'NO_SNOW', possibleSnow: false, hailSeen: false })).toBeNull();
   });
 
-  it('SNOW DAY alert leads to the snow scene', () => {
-    expect(decideIntro(snap('snow'))).toMatchObject({ screen: 'snow-day', snowScene: true, blocking: false });
+  it('SNOW DAY alert leads to the snow scene and says where snow was confirmed', () => {
+    expect(decideIntro(snap('snow'))).toMatchObject({ screen: 'snow-day', snowScene: true, blocking: false, note: 'CONFIRMED BY NEARBY SNOW SENSOR' });
+  });
+
+  it('unconfirmed with snow seen nearby gets a note', () => {
+    expect(decideIntro(snap('unconfirmed'))).toMatchObject({ screen: 'unconfirmed', note: 'SNOW SEEN NEARBY' });
   });
 
   it('station mismatch blocks everything', () => {

@@ -13,6 +13,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "pipeline": "tsx pipeline/run.ts",
+    "pipeline:proxy": "NODE_USE_ENV_PROXY=1 tsx pipeline/run.ts",
     "confirm-station": "tsx pipeline/confirm-station.ts",
     "capture-fixtures": "tsx pipeline/capture-fixtures.ts"
   },

@@ -75,7 +75,7 @@ describe('AWS parser (real St James\'s Park files, 2026-11-10)', () => {
   });
 
   it('confirms the station identity', () => {
-    expect(minutes.every(awsStationMatches)).toBe(true);
+    expect(minutes.every((m) => awsStationMatches(m))).toBe(true);
     expect(awsStationMatches({ name: 'Heathrow Automatic Weather Station', latitude: 51.48, longitude: -0.45 })).toBe(false);
   });
 

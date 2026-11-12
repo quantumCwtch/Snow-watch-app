@@ -112,7 +112,8 @@ export interface AwsMinute {
   precipMm: number | null;
   precipIntensity: number | null;
   humidityPct: number | null;
-  presentWeather: number | null;
+  /** Aviation-style weather groups (e.g. NSW, -RA, UP); null when not reported. */
+  presentWeather: string | null;
   visibilityM: number | null;
   windSpeedMs: number | null;
   mslpHpa: number | null;
@@ -151,6 +152,13 @@ export function parseAwsCsv(text: string): AwsMinute[] {
     const n = Number(v);
     return Number.isFinite(n) ? n : null;
   };
+  const getStr = (cells: string[], col: string): string | null => {
+    const i = idx(col);
+    if (i < 0) return null;
+    const v = cells[i];
+    if (v === undefined || v.trim() === '') return null;
+    return qcOk(cells[idx(col + '_qc')]) ? v.trim() : null;
+  };
   const out: AwsMinute[] = [];
   for (const line of lines.slice(1)) {
     const c = line.split('|');
@@ -165,7 +173,7 @@ export function parseAwsCsv(text: string): AwsMinute[] {
       precipMm: getNum(c, AWS_COLUMNS.precip),
       precipIntensity: getNum(c, AWS_COLUMNS.precipIntensity),
       humidityPct: getNum(c, AWS_COLUMNS.humidity),
-      presentWeather: getNum(c, AWS_COLUMNS.presentWeather),
+      presentWeather: getStr(c, AWS_COLUMNS.presentWeather),
       visibilityM: getNum(c, AWS_COLUMNS.visibility),
       windSpeedMs: getNum(c, AWS_COLUMNS.windSpeed),
       mslpHpa: getNum(c, AWS_COLUMNS.pressureMsl),
@@ -174,8 +182,17 @@ export function parseAwsCsv(text: string): AwsMinute[] {
   return out;
 }
 
-export function awsStationMatches(m: Pick<AwsMinute, 'name' | 'latitude' | 'longitude'>): boolean {
-  const a = config.station.aws;
+export interface AwsStationSpec {
+  fileKeyPrefix: string;
+  expectedName: string;
+  expectedLatitude: number;
+  expectedLongitude: number;
+  maxCoordinateDifferenceDegrees: number;
+}
+
+export const SJP_AWS: AwsStationSpec = config.station.aws;
+
+export function awsStationMatches(m: Pick<AwsMinute, 'name' | 'latitude' | 'longitude'>, a: AwsStationSpec = SJP_AWS): boolean {
   if (m.name !== a.expectedName) return false;
   if (m.latitude === null || m.longitude === null) return false;
   return (

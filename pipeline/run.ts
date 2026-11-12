@@ -20,6 +20,7 @@ import { ukDateOf, addDays, ukDayBoundsUtc, isValidDate, daysBetween } from '../
 import type { DayRecord, HourlyObs, StationIdentity, SummaryDay } from '../src/lib/types';
 import { fetchDatahub, fetchAws, StationMismatchError, type DatahubResult, type AwsResult } from './sources';
 import { aggregateAwsHourly } from './parsers';
+import { fetchNearby, type NearbyFetchResult } from './nearby';
 import {
   buildDayRecord,
   buildSummary,
@@ -152,6 +153,16 @@ async function main() {
     log(awsError);
   }
 
+  // ---- Nearby present-weather confirmation stations
+  let nearby: NearbyFetchResult = { reports: [], rawMetars: [], errors: [], stationsOk: [] };
+  try {
+    nearby = await fetchNearby(awsFrom, awsTo, now);
+  } catch (e) {
+    nearby.errors.push((e as Error).message);
+  }
+  log(`Nearby: ${nearby.reports.length} present-weather reports from ${nearby.stationsOk.join(', ') || 'no stations'}.`);
+  for (const e of nearby.errors) log('Nearby error:', e);
+
   const awsMinutes = aws?.minutes ?? [];
   const awsHourly = aggregateAwsHourly(awsMinutes);
   const dhHourly: HourlyObs[] = dh?.hourly ?? [];
@@ -174,6 +185,8 @@ async function main() {
       awsHourly,
       awsMinutes,
       awsObjectKeys: (aws?.objectKeys ?? []).filter((k) => keyOverlapsDay(k, date)),
+      nearby: nearby.reports,
+      rawMetars: nearby.rawMetars,
       station,
       retrievedAt,
     });
@@ -202,6 +215,7 @@ async function main() {
     awsHourly,
     awsMinutes,
     awsObjectKeys: [],
+    nearby: nearby.reports,
     station,
     retrievedAt,
     upTo: now,
@@ -215,6 +229,11 @@ async function main() {
   const latestObservation = merged.at(-1) ?? null;
   const status = feedStatus(Boolean(dhHourly.length), Boolean(awsMinutes.length), latestObservation?.time ?? null, now);
   if (datahubError && status.status !== 'SIGNAL_LOST') status.message += ` (${datahubError})`;
+  if (status.status !== 'SIGNAL_LOST') {
+    status.message += nearby.stationsOk.length
+      ? ` Snow confirmation sensors: ${nearby.stationsOk.join(', ')}.`
+      : ' Nearby snow confirmation sensors unavailable.';
+  }
 
   const latest = latestOf({
     now,
