@@ -11,7 +11,9 @@ The joke only works if the weather is true, so accuracy comes first. The app use
 | `config/snow-watch.json` | Every threshold and code mapping, documented in [CONFIG.md](CONFIG.md) |
 | `src/lib/` | Pure, tested logic: the snow rule, the weather classifier, UK-time handling, the seeded RNG and sunset maths |
 | `pipeline/` | The data pipeline (Node and TypeScript) run by GitHub Actions |
-| `src/game/` | Canvas renderer (320 x 200), cast, activity tables, special screens and chiptune |
+| `src/game/` | Canvas renderer (320 x 200), cast, activity tables, special screens, chiptune fanfare and background music |
+
+The seven characters are named Haydn, Sophie, Santi, Rachel, David, Sam and Div. The names rotate one place around the cast each day, so everyone takes a turn at each running gag. A given date always gets the same names.
 | `src/pages/`, `*.html` | The four pages: title screen, high scores, level select (archive), how it works |
 | `data/` | Published JSON: `latest.json`, `summary.json`, `days/YYYY-MM-DD.json` |
 | `tests/` | Vitest unit tests, with real fixtures in `tests/fixtures/` |
@@ -122,7 +124,7 @@ Add `?preview=<name>` to the title screen to see any scene or special screen wit
 - The canvas has a text alternative, and PRESS START is a real, keyboard-focusable button.
 - `prefers-reduced-motion` shows static frames, with no flashing, shaking or animation.
 - Colour cycling on the SNOW DAY screen changes at most twice a second, and lightning flashes at most once every 6 seconds. Both are well under the three-flashes-per-second limit.
-- Sound is off by default, with a visible toggle.
+- Sound is off by default, with a visible toggle. Turning it on plays an original lo-fi chiptune loop ("Pigeons at Dusk", synthesised in `src/game/music.ts`, no audio files) plus the SNOW DAY fanfare. The setting is remembered, and the music resumes on the first click or key press of a later visit, because browsers block autoplay.
 - Lighthouse accessibility score: 100 on all four pages, checked locally on 2026-11-11.
 
 ## Licences and attribution
@@ -130,4 +132,4 @@ Add `?preview=<name>` to the title screen to see any scene or special screen wit
 - **Code:** MIT (see `LICENSE`).
 - **Met Office Weather DataHub data:** © Crown copyright, Met Office, used under the Weather DataHub terms and conditions.
 - **Met Office UK Land Surface Observations (AWS Open Data Registry):** British Crown copyright, Met Office, licensed under **CC BY-SA**. See <https://registry.opendata.aws/met-office-uk-land-observations/>. Derived files in `data/` are shared under the same licence.
-- **Artwork, characters, pixel font and chiptune:** original to this project. They do not imitate or reference any existing game, character, publisher or soundtrack.
+- **Artwork, characters, pixel font, chiptune fanfare and background music:** original to this project. They do not imitate or reference any existing game, character, publisher or soundtrack.

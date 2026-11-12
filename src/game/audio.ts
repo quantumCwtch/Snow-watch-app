@@ -4,6 +4,19 @@
 const KEY = 'snow-watch:sound';
 let ctx: AudioContext | null = null;
 
+/** Shared AudioContext for sound effects and music (created on first use). */
+export function getAudioContext(): AudioContext {
+  ctx ??= new AudioContext();
+  return ctx;
+}
+
+type DuckListener = (seconds: number) => void;
+const duckListeners: DuckListener[] = [];
+/** Lets the background music dip while a fanfare plays. */
+export function onDuck(fn: DuckListener) {
+  duckListeners.push(fn);
+}
+
 export function soundEnabled(): boolean {
   try {
     return localStorage.getItem(KEY) === 'on';
@@ -44,9 +57,9 @@ function tone(ac: AudioContext, freq: number, start: number, dur: number, type: 
 /** "Snow Day Fanfare" - an original 13-note melody with a triangle bass line. */
 export function playFanfare() {
   if (!soundEnabled()) return;
-  ctx ??= new AudioContext();
-  const ac = ctx;
+  const ac = getAudioContext();
   void ac.resume();
+  duckListeners.forEach((fn) => fn(3.5));
   const t0 = ac.currentTime + 0.05;
   const beat = 0.12;
   const melody: Array<[string, number]> = [
@@ -69,9 +82,9 @@ export function playFanfare() {
 /** A short descending "womp" for near misses. */
 export function playNearMiss() {
   if (!soundEnabled()) return;
-  ctx ??= new AudioContext();
-  const ac = ctx;
+  const ac = getAudioContext();
   void ac.resume();
+  duckListeners.forEach((fn) => fn(1.6));
   const t0 = ac.currentTime + 0.05;
   ['E4', 'D#4', 'D4', 'C#4'].forEach((n, i) => tone(ac, NOTE(n), t0 + i * 0.22, i === 3 ? 0.6 : 0.2, 'square', 0.05));
 }

@@ -21,11 +21,17 @@ export interface CastMember {
   catchphrases: string[];
 }
 
+/**
+ * The seven names. Each day the names rotate around the cast (seeded by the date),
+ * so everyone takes a turn as the filmer, the flat-white drinker, the cyclist and so on.
+ */
+export const NAMES = ['Haydn', 'Sophie', 'Santi', 'Rachel', 'David', 'Sam', 'Div'] as const;
+
 export const CAST: CastMember[] = [
   {
     id: 'saff',
-    name: 'Saff',
-    gag: 'films absolutely everything for her followers',
+    name: 'Haydn',
+    gag: 'films absolutely everything for their followers',
     signatureProp: 'phone-up',
     skin: 'skin1',
     hair: 'gold',
@@ -37,7 +43,7 @@ export const CAST: CastMember[] = [
   },
   {
     id: 'jasper',
-    name: 'Jasper',
+    name: 'Sophie',
     gag: 'has an oat milk flat white in all weathers',
     signatureProp: 'cup',
     skin: 'skin2',
@@ -51,7 +57,7 @@ export const CAST: CastMember[] = [
   },
   {
     id: 'kit',
-    name: 'Kit',
+    name: 'Santi',
     gag: 'pushes a fixed-gear bike everywhere but never rides it',
     signatureProp: 'bike',
     skin: 'skin3',
@@ -64,7 +70,7 @@ export const CAST: CastMember[] = [
   },
   {
     id: 'priya',
-    name: 'Priya',
+    name: 'Rachel',
     gag: 'is forever hunting for one bar of phone signal',
     signatureProp: 'phone-high',
     skin: 'skin3',
@@ -77,7 +83,7 @@ export const CAST: CastMember[] = [
   },
   {
     id: 'dev',
-    name: 'Dev',
+    name: 'David',
     gag: 'is mid running-app challenge and will not stop',
     signatureProp: 'watch',
     skin: 'skin4',
@@ -90,7 +96,7 @@ export const CAST: CastMember[] = [
   },
   {
     id: 'flo',
-    name: 'Flo',
+    name: 'Sam',
     gag: 'carries a tote bag full of sourdough',
     signatureProp: 'tote',
     skin: 'skin1',
@@ -103,7 +109,7 @@ export const CAST: CastMember[] = [
   },
   {
     id: 'tom',
-    name: 'Tom',
+    name: 'Div',
     gag: 'is still talking about house prices',
     signatureProp: 'none',
     skin: 'skin1',

@@ -1,8 +1,8 @@
 // Deterministic scene planner: the same date (and weather) always produces the same
 // arrangement of characters, activities, positions and background extras.
 import type { SceneCategory, SceneVariant } from '../lib/types';
-import { createRng } from '../lib/rng';
-import { CAST, type CastMember } from './cast';
+import { createRng, hashString } from '../lib/rng';
+import { CAST, NAMES, type CastMember } from './cast';
 import { ACTIVITIES, VARIANT_EXTRAS, type Activity, type Zone } from './activities';
 
 export const W = 320;
@@ -22,6 +22,8 @@ export const ZONES: Record<Zone, Array<[number, number, number, number]>> = {
 
 export interface PlacedCharacter {
   member: CastMember;
+  /** Today's name for this character (names rotate daily). */
+  name: string;
   activity: Activity;
   text: string;
   x: number;
@@ -55,6 +57,9 @@ export function planScene(date: string, category: SceneCategory, variant: SceneV
   const rng = createRng(`snow-watch:${date}:${category}:${variant}`);
   const table = rng.shuffle(activitiesFor(category, variant));
   const order = rng.shuffle(CAST);
+  // Names rotate by one place each day, keyed on the date alone.
+  const shift = dayNumber(date);
+  const nameOf = (m: CastMember) => NAMES[(CAST.indexOf(m) + shift) % NAMES.length];
   const placed: PlacedCharacter[] = [];
 
   order.forEach((member, i) => {
@@ -71,8 +76,9 @@ export function planScene(date: string, category: SceneCategory, variant: SceneV
     }
     placed.push({
       member,
+      name: nameOf(member),
       activity,
-      text: activity.text.replace('{n}', member.name),
+      text: activity.text.replace('{n}', nameOf(member)),
       x,
       y,
       dir: rng.chance(0.5) ? 1 : -1,
@@ -110,6 +116,13 @@ export function planScene(date: string, category: SceneCategory, variant: SceneV
     clouds,
     extras: { busker: rng.chance(0.35), balloon: rng.chance(0.2), balloonX: rng.int(30, 290) },
   };
+}
+
+/** Days since 1970-01-01 for a YYYY-MM-DD date (falls back to a hash if malformed). */
+function dayNumber(date: string): number {
+  const [y, m, d] = date.split('-').map(Number);
+  const n = Math.round(Date.UTC(y, m - 1, d) / 86400000);
+  return Number.isFinite(n) ? ((n % NAMES.length) + NAMES.length) % NAMES.length : hashString(date) % NAMES.length;
 }
 
 /** Plain-English description of a plan, for screen readers and the page text. */

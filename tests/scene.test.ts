@@ -33,6 +33,16 @@ describe('seeded scene generator', () => {
     expect(activitiesFor('sunny', 'hot').length).toBeGreaterThan(ACTIVITIES.sunny.length);
   });
 
+  it('uses the seven names, each once, rotating by one place per day', () => {
+    const a = planScene('2026-12-01', 'overcast');
+    const b = planScene('2026-12-02', 'overcast');
+    expect(new Set(a.characters.map((c) => c.name))).toEqual(new Set(['Haydn', 'Sophie', 'Santi', 'Rachel', 'David', 'Sam', 'Div']));
+    const nameFor = (p: typeof a, id: string) => p.characters.find((c) => c.member.id === id)!.name;
+    expect(nameFor(a, 'saff')).not.toBe(nameFor(b, 'saff'));
+    expect(nameFor(a, 'saff')).toBe(nameFor(planScene('2026-12-01', 'snow'), 'saff'));
+    expect(a.characters.every((c) => c.text.startsWith(c.name))).toBe(true);
+  });
+
   it('cast has seven distinct silhouettes', () => {
     expect(CAST).toHaveLength(7);
     expect(new Set(CAST.map((c) => c.hairStyle)).size).toBe(7);

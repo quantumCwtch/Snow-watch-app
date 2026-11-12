@@ -4,6 +4,7 @@ import { categoryLabel } from '../lib/classifier';
 import { config } from '../lib/config';
 import { ukTimeOf, ukDateOf, addDays } from '../lib/ukTime';
 import { soundEnabled, setSoundEnabled } from '../game/audio';
+import { startMusic, stopMusic } from '../game/music';
 
 export const BASE = import.meta.env.BASE_URL;
 
@@ -69,10 +70,25 @@ export function setupSoundToggle(btn: HTMLButtonElement) {
     btn.textContent = on ? 'SOUND: ON' : 'SOUND: OFF';
   };
   btn.addEventListener('click', () => {
-    setSoundEnabled(!soundEnabled());
+    const on = !soundEnabled();
+    setSoundEnabled(on);
+    if (on) startMusic();
+    else stopMusic();
     paint();
   });
   paint();
+  // Sound was left ON last visit: browsers only allow audio after an interaction,
+  // so start the music on the first click, tap or key press anywhere on the page.
+  if (soundEnabled()) {
+    const kick = (e: Event) => {
+      if (e.target === btn) return; // the toggle handles itself
+      if (soundEnabled()) startMusic();
+      window.removeEventListener('pointerdown', kick);
+      window.removeEventListener('keydown', kick);
+    };
+    window.addEventListener('pointerdown', kick);
+    window.addEventListener('keydown', kick);
+  }
 }
 
 export function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> = {}, ...children: Array<Node | string>): HTMLElementTagNameMap[K] {
