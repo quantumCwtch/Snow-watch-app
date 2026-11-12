@@ -1,22 +1,22 @@
 {
  "schema": 1,
- "generatedAt": "2026-11-11T23:10:30.794Z",
+ "generatedAt": "2026-11-12T03:50:10.609Z",
  "launchDate": "2026-11-04",
  "counts": {
   "SNOW": 0,
   "SLEET": 0,
   "UNCONFIRMED": 4,
-  "NO_SNOW": 3,
+  "NO_SNOW": 4,
   "NO_DATA": 0
  },
  "snowDays": [],
  "sleetDays": [],
  "longestRunWithoutSnow": {
-  "days": 7,
+  "days": 8,
   "from": "2026-11-04",
-  "to": "2026-11-10"
+  "to": "2026-11-11"
  },
- "currentRunWithoutSnow": 7,
+ "currentRunWithoutSnow": 8,
  "days": [
   {
    "date": "2026-11-04",
@@ -93,6 +93,17 @@
    "variant": "normal",
    "minTemperatureC": 5.8,
    "maxTemperatureC": 10.9,
+   "completeness": 1
+  },
+  {
+   "date": "2026-11-11",
+   "verdict": "NO_SNOW",
+   "possibleSnow": false,
+   "hailSeen": false,
+   "category": "light-rain",
+   "variant": "normal",
+   "minTemperatureC": 7.7,
+   "maxTemperatureC": 10.5,
    "completeness": 1
   }
  ]
