@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generatedAt": "2026-11-14T23:49:35.097Z",
+ "generatedAt": "2026-11-15T02:42:41.058Z",
  "status": "STATION_MISMATCH",
  "statusMessage": "DataHub nearest station to Trafalgar Square is \"Greater London\" (gcpvj0), not St James's Park. Refusing to use it.",
  "station": {
